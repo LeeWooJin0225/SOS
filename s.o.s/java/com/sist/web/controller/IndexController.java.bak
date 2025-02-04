@@ -1,0 +1,113 @@
+/**
+ * <pre>
+ * 프로젝트명 : HiBoard
+ * 패키지명   : com.icia.web.controller
+ * 파일명     : IndexController.java
+ * 작성일     : 2021. 1. 21.
+ * 작성자     : daekk
+ * </pre>
+ */
+package com.sist.web.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.sist.common.util.StringUtil;
+import com.sist.web.model.Account;
+import com.sist.web.model.Book;
+import com.sist.web.service.BookService;
+import com.sist.web.util.CookieUtil;
+import com.sist.web.util.HttpUtil;
+
+/**
+ * <pre>
+ * 패키지명   : com.icia.web.controller
+ * 파일명     : IndexController.java
+ * 작성일     : 2021. 1. 21.
+ * 작성자     : daekk
+ * 설명       : 인덱스 컨트롤러
+ * </pre>
+ */
+
+@Controller("indexController")
+public class IndexController {
+   
+   private static Logger logger = LoggerFactory.getLogger(IndexController.class);
+
+   @Autowired
+   private BookService bookService;
+   /**
+    * <pre>
+    * 메소드명   : index
+    * 작성일     : 2021. 1. 21.
+    * 작성자     : daekk
+    * 설명       : 인덱스 페이지
+    * </pre>
+    * 
+    * @param request  HttpServletRequest
+    * @param response HttpServletResponse
+    * @return String
+    */
+   /*===================================================
+    *   메인 화면
+    ===================================================*/
+   @RequestMapping(value = "/index", method = RequestMethod.GET)
+   public String index(ModelMap model,HttpServletRequest request, HttpServletResponse response) 
+   {
+      Random random = new Random();
+      List<Book> list = new ArrayList<>();
+      
+      for(int i=0; i < 10; i++)
+      {
+         long bookNumRan = random.nextInt(899)+1;
+         Book search = bookService.bookIndexSelect(bookNumRan);
+         
+         if(search != null)
+         {
+            list.add(search);
+            logger.debug("책 제목 :" + search.getBookTitle());
+         }
+      }
+      
+        // 리스트의 크기 출력
+        logger.debug("총 저장된 Book 객체 수: " + list.size());
+
+
+      
+      model.addAttribute("list", list);
+
+      return "/index";
+   }
+   
+   /*===================================================
+    *   교재 상세 페이지로 이동
+    ===================================================*/
+   @RequestMapping(value = "/user/bookDetail")
+   public String bookDetails(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+
+      long bookSeq = HttpUtil.get(request, "bookSeq", (long) 0);
+
+      Book book = null;
+
+      if (bookSeq > 0) {
+         book = bookService.bookIndexSelect(bookSeq);
+      }
+
+      model.addAttribute("book", book);
+
+      return "/book/bookDetail";
+   }
+
+}
