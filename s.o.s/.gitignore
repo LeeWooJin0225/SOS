@@ -1,0 +1,1 @@
+-e ".idea/\n.vscode/\n.DS_Store\nThumbs.db\ntarget/\nbuild/\nnode_modules/\ndist/\n.env\napplication.properties\napplication.yml\n*.log" 
